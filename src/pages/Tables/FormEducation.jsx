@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Table } from "../../common/Table/Table";
 import { Button, Modal, Segment, Form, Input } from "semantic-ui-react";
 import { db } from "../../api/firebase"
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 export function FormEducation(props) {
     const [data, setdata] = useState([])
@@ -16,9 +18,9 @@ export function FormEducation(props) {
                     setdata([])
                 }
                 console.log("Speciality -> querySnapshot", querySnapshot)
-                const dataSnapshot=[]
-                querySnapshot.forEach((d)=>{
-                    dataSnapshot.push({...d.data(), id: d.id})
+                const dataSnapshot = []
+                querySnapshot.forEach((d) => {
+                    dataSnapshot.push({ ...d.data(), id: d.id })
                 })
                 setdata(dataSnapshot)
                 console.log("Speciality -> dataSnapshot", dataSnapshot)
@@ -33,12 +35,12 @@ export function FormEducation(props) {
     }, [])
 
     const handleClickDelete = (row) => {
-        db.collection('formEducation').doc(row.original.id).delete().then(function() {
+        db.collection('formEducation').doc(row.original.id).delete().then(function () {
             console.log("Document successfully deleted!");
             loadData()
-        }).catch(function(error) {
+        }).catch(function (error) {
             console.error("Error removing document: ", error);
-        });        
+        });
     }
 
     const handleClickEdit = (row) => {
@@ -76,35 +78,24 @@ export function FormEducation(props) {
         }
     ]
 
-    const onChangeModalForm = (property, value) => {
-        console.log("onChangeModalForm -> property, value", property, value)
-        const newState = { ...modalValues }
-        property.forEach((i, num) => {
-            newState[i] = value[num]
-        })
-        setModalValues(newState)
-        console.log("onChangeModalForm -> newState", newState)
-    }
-
-    const clickOk = () => {
+    const clickOk = (values) => {
         if (modalValues.id) {
             db.collection('formEducation').doc(modalValues.id).set({
-                NameForm: modalValues.NameForm
-        }).then(function() {
-            console.log("Document successfully written!");
-            setOpen(false)
-            loadData()
-        });
+                NameForm: values.NameForm
+            }).then(function () {
+                console.log("Document successfully written!");
+                setOpen(false)
+                loadData()
+            });
         } else {
             db.collection('formEducation').doc().set({
-                NameForm: modalValues.NameForm
-            }).then(function() {
+                NameForm: values.NameForm
+            }).then(function () {
                 console.log("Document successfully written!");
                 setOpen(false)
                 loadData()
             });
         }
-        
     }
 
     return (
@@ -118,25 +109,68 @@ export function FormEducation(props) {
                 onOpen={() => setOpen(true)}
                 open={open}
             >
-                <Modal.Content>
-                    <Modal.Description>
-                        <Form>
-                            <Form.Field><label>Форма обучения</label><Input onChange={(e, data) => { onChangeModalForm(['NameForm'], [data.value]) }} value={modalValues.NameForm||''} /></Form.Field>
-                        </Form>
-                    </Modal.Description>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color='black' onClick={() => setOpen(false)}>
-                        Отмена
-                    </Button>
-                    <Button
-                        content="Изменить"
-                        labelPosition='right'
-                        icon='checkmark'
-                        onClick={() => clickOk()}
-                        positive
-                    />
-                </Modal.Actions>
+                <Formik
+                    initialErrors={{ NameForm: "" }}
+                    initialValues={{
+                        NameForm: modalValues.NameForm || '',
+                    }}
+                    onSubmit={(values) => {
+                        console.log(values)
+                    }}
+                    validationSchema={Yup.object({
+                        NameForm: Yup.string().required('Обязательно для заполнения!'),
+                    })}
+                >
+                    {({
+                        values,
+                        errors,
+                        touched,
+                        handleChange,
+                        handleBlur,
+                        handleSubmit,
+                        isValid,
+                        /* and other goodies */
+                    }) => (
+                            <>
+                                <Modal.Content>
+                                    <Modal.Description>
+                                        <Form>
+                                            <Form.Field
+                                                error={touched.NameForm && errors.NameForm}
+                                            >
+                                                <label>Форма обучения</label>
+                                                <Input
+                                                    id="NameForm"
+                                                    name="NameForm"
+                                                    type="NameForm"
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    value={values.NameForm}
+                                                    error={touched.NameForm && errors.NameForm ? {
+                                                        content: errors.NameForm,
+                                                        pointing: 'below',
+                                                    } : false}
+                                                />
+                                            </Form.Field>
+                                        </Form>
+                                    </Modal.Description>
+                                </Modal.Content>
+                                <Modal.Actions>
+                                    <Button color='black' onClick={() => setOpen(false)}>
+                                        Отмена
+                                    </Button>
+                                    <Button
+                                        content="Изменить"
+                                        labelPosition='right'
+                                        icon='checkmark'
+                                        onClick={() => clickOk(values)}
+                                        positive
+                                        disabled={!isValid}
+                                    />
+                                </Modal.Actions>
+                            </>
+                        )}
+                </Formik>
             </Modal>
         </>
     )

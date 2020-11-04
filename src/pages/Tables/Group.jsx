@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Table } from "../../common/Table/Table";
 import { db } from "../../api/firebase";
 import { Button, Dropdown, Modal, Segment, Form, Input } from "semantic-ui-react";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 export function Group(props) {
     const [data, setdata] = useState([])
@@ -193,27 +195,17 @@ export function Group(props) {
         }
     ]
 
-    const onChangeModalForm = (property, value) => {
-        console.log("onChangeModalForm -> property, value", property, value)
-        const newState = { ...modalValues }
-        property.forEach((i, num) => {
-            newState[i] = value[num]
-        })
-        setModalValues(newState)
-        console.log("onChangeModalForm -> newState", newState)
-    }
-
-    const clickOk = () => {
+    const clickOk = (values) => {
         if (modalValues.id) {
             db.collection('groups').doc(modalValues.id).set({
-                CountStudent: modalValues.CountStudent,
-                CountSubgrroup: modalValues.CountSubgrroup,
-                Course: modalValues.Course,
-                Faculty: modalValues.Faculty,
-                IdFormEducation: db.doc('formEducation/' + modalValues.IdFormEducationStr),
-                IdQualification: db.doc('qualification/' + modalValues.IdQualificationStr),
-                IdSpeciality: db.doc('speciality/' + modalValues.IdSpecialityStr),
-                Name: modalValues.Name,
+                CountStudent: values.CountStudent,
+                CountSubgrroup: values.CountSubgrroup,
+                Course: values.Course,
+                Faculty: values.Faculty,
+                IdFormEducation: db.doc('formEducation/' + values.IdFormEducationStr),
+                IdQualification: db.doc('qualification/' + values.IdQualificationStr),
+                IdSpeciality: db.doc('speciality/' + values.IdSpecialityStr),
+                Name: values.Name,
             }).then(function () {
                 console.log("Document successfully written!");
                 setOpen(false)
@@ -221,21 +213,20 @@ export function Group(props) {
             });
         } else {
             db.collection('groups').doc().set({
-                CountStudent: modalValues.CountStudent,
-                CountSubgrroup: modalValues.CountSubgrroup,
-                Course: modalValues.Course,
-                Faculty: modalValues.Faculty,
-                IdFormEducation: db.doc('formEducation/' + modalValues.IdFormEducationStr),
-                IdQualification: db.doc('qualification/' + modalValues.IdQualificationStr),
-                IdSpeciality: db.doc('speciality/' + modalValues.IdSpecialityStr),
-                Name: modalValues.Name,
+                CountStudent: values.CountStudent,
+                CountSubgrroup: values.CountSubgrroup,
+                Course: values.Course,
+                Faculty: values.Faculty,
+                IdFormEducation: db.doc('formEducation/' + values.IdFormEducationStr),
+                IdQualification: db.doc('qualification/' + values.IdQualificationStr),
+                IdSpeciality: db.doc('speciality/' + values.IdSpecialityStr),
+                Name: values.Name,
             }).then(function () {
                 console.log("Document successfully written!");
                 setOpen(false)
                 loadData()
             });
         }
-
     }
 
     return (
@@ -249,64 +240,248 @@ export function Group(props) {
                 onOpen={() => setOpen(true)}
                 open={open}
             >
-                <Modal.Content>
-                    <Modal.Description>
-                        <Form>
+                <Formik
+                    initialErrors={{
+                        IdFormEducationStr: '',
+                        IdQualificationStr: '',
+                        IdSpecialityStr: '',
+                        Faculty: '',
+                        Name: '',
+                        Course: '',
+                        CountStudent: '',
+                        CountSubgrroup: '',
+                    }}
+                    initialValues={{
+                        IdFormEducationStr: modalValues.IdFormEducationStr || null,
+                        IdQualificationStr: modalValues.IdQualificationStr || null,
+                        IdSpecialityStr: modalValues.IdSpecialityStr || null,
+                        Faculty: modalValues.Faculty || '',
+                        Name: modalValues.Name || '',
+                        Course: modalValues.Course || '',
+                        CountStudent: modalValues.CountStudent || '',
+                        CountSubgrroup: modalValues.CountSubgrroup || '',
+                    }}
+                    onSubmit={(values) => {
+                        console.log(values)
 
-                            <Form.Field>
-                                <label>Форма обучения</label>
-                                <Dropdown
-                                    onChange={(e, data) => {
-                                        onChangeModalForm(['IdFormEducationStr', 'NameForm'], [data.value, data.text])
-                                    }}
-                                    value={modalValues.IdFormEducationStr}
-                                    clearable
-                                    options={optionsFormEducation}
-                                    selection
-                                />
-                            </Form.Field>
+                    }}
+                    validationSchema={Yup.object({
+                        IdFormEducationStr: Yup.string().required('Обязательно для заполнения!'),
+                        IdQualificationStr: Yup.string().required('Обязательно для заполнения!'),
+                        IdSpecialityStr: Yup.string().required('Обязательно для заполнения!'),
+                        Faculty: Yup.string().required('Обязательно для заполнения!'),
+                        Name: Yup.string().required('Обязательно для заполнения!'),
+                        Course: Yup.string().required('Обязательно для заполнения!'),
+                        CountStudent: Yup.string().required('Обязательно для заполнения!'),
+                        CountSubgrroup: Yup.string().required('Обязательно для заполнения!'),
+                    })}
+                >
+                    {({
+                        values,
+                        errors,
+                        touched,
+                        handleChange,
+                        handleBlur,
+                        handleSubmit,
+                        isValid,
+                    }) => {
+                        return (<>
+                            <Modal.Content>
+                                <Modal.Description>
+                                    <Form>
 
-                            <Form.Field>
-                                <label>Квадификация</label>
-                                <Dropdown
-                                    onChange={(e, data) => { onChangeModalForm(['IdQualificationStr', 'NameQualification'], [data.value, data.text]) }}
-                                    value={modalValues.IdQualificationStr}
-                                    clearable
-                                    options={optionsQualification}
-                                    selection
-                                />
-                            </Form.Field>
+                                        <Form.Field>
+                                            <label>Форма обучения</label>
+                                            <Dropdown
+                                                id="IdFormEducationStr"
+                                                name="IdFormEducationStr"
+                                                type="IdFormEducationStr"
+                                                onChange={(e, data) => {
+                                                    handleChange({
+                                                        target: {
+                                                            id: "IdFormEducationStr",
+                                                            name: "IdFormEducationStr",
+                                                            type: "IdFormEducationStr",
+                                                            value: data.value,
+                                                        },
+                                                        id: "IdFormEducationStr",
+                                                        name: "IdFormEducationStr",
+                                                        type: "IdFormEducationStr",
+                                                        value: data.value,
+                                                    })
+                                                }}
+                                                onBlur={handleBlur}
+                                                value={values.IdFormEducationStr}
+                                                clearable
+                                                options={optionsFormEducation}
+                                                selection
+                                                error={touched.IdFormEducationStr && errors.IdFormEducationStr ? {
+                                                    content: errors.IdFormEducationStr,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
 
-                            <Form.Field>
-                                <label>Направление</label>
-                                <Dropdown onChange={(e, data) => { onChangeModalForm(['IdSpecialityStr', 'NameSpeciality'], [data.value, data.text]) }}
-                                    value={modalValues.IdSpecialityStr}
-                                    clearable
-                                    options={optionsSpeciality}
-                                    selection
-                                />
-                            </Form.Field>
+                                        <Form.Field>
+                                            <label>Квадификация</label>
+                                            <Dropdown
+                                                id="IdQualificationStr"
+                                                name="IdQualificationStr"
+                                                type="IdQualificationStr"
+                                                style={{}}
+                                                onChange={(e, data) => {
+                                                    handleChange({
+                                                        target: {
+                                                            id: "IdQualificationStr",
+                                                            name: "IdQualificationStr",
+                                                            type: "IdQualificationStr",
+                                                            value: data.value,
+                                                        },
+                                                        id: "IdQualificationStr",
+                                                        name: "IdQualificationStr",
+                                                        type: "IdQualificationStr",
+                                                        value: data.value,
+                                                    })
+                                                }}
+                                                onBlur={handleBlur}
+                                                value={values.IdQualificationStr}
+                                                clearable
+                                                options={optionsQualification}
+                                                selection
+                                                error={touched.IdQualificationStr && errors.IdQualificationStr ? {
+                                                    content: errors.IdQualificationStr,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
 
-                            <Form.Field><label>Факультет</label><Input onChange={(e, data) => { onChangeModalForm(['Faculty'], [data.value]) }} value={modalValues.Faculty || ''} /></Form.Field>
-                            <Form.Field><label>Наименование группы</label><Input onChange={(e, data) => { onChangeModalForm(['Name'], [data.value]) }} value={modalValues.Name || ''} /></Form.Field>
-                            <Form.Field><label>Курс</label><Input onChange={(e, data) => { onChangeModalForm(['Course'], [data.value]) }} value={modalValues.Course || ''} /></Form.Field>
-                            <Form.Field><label>Количество студентов</label><Input onChange={(e, data) => { onChangeModalForm(['CountStudent'], [data.value]) }} value={modalValues.CountStudent || ''} /></Form.Field>
-                            <Form.Field><label>Количество подгрупп</label><Input onChange={(e, data) => { onChangeModalForm(['CountSubgrroup'], [data.value]) }} value={modalValues.CountSubgrroup || ''} /></Form.Field>
-                        </Form>
-                    </Modal.Description>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color='black' onClick={() => setOpen(false)}>
-                        Отмена
+                                        <Form.Field>
+                                            <label>Направление</label>
+                                            <Dropdown
+                                                id="IdSpecialityStr"
+                                                name="IdSpecialityStr"
+                                                type="IdSpecialityStr"
+                                                onChange={(e, data) => {
+                                                    handleChange({
+                                                        target: {
+                                                            id: "IdSpecialityStr",
+                                                            name: "IdSpecialityStr",
+                                                            type: "IdSpecialityStr",
+                                                            value: data.value,
+                                                        },
+                                                        id: "IdSpecialityStr",
+                                                        name: "IdSpecialityStr",
+                                                        type: "IdSpecialityStr",
+                                                        value: data.value,
+                                                    })
+                                                }}
+                                                onBlur={handleBlur}
+                                                value={values.IdSpecialityStr}
+                                                clearable
+                                                options={optionsSpeciality}
+                                                selection
+                                                error={touched.IdSpecialityStr && errors.IdSpecialityStr ? {
+                                                    content: errors.IdSpecialityStr,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
+
+                                        <Form.Field>
+                                            <label>Факультет</label>
+                                            <Input
+                                                id="Faculty"
+                                                name="Faculty"
+                                                type="Faculty"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.Faculty || ''}
+                                                error={touched.Faculty && errors.Faculty ? {
+                                                    content: errors.Faculty,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
+
+                                        <Form.Field>
+                                            <label>Наименование группы</label>
+                                            <Input
+                                                id="Name"
+                                                name="Name"
+                                                type="Name"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.Name || ''}
+                                                error={touched.Name && errors.Name ? {
+                                                    content: errors.Name,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
+                                        <Form.Field>
+                                            <label>Курс</label>
+                                            <Input
+                                                id="Course"
+                                                name="Course"
+                                                type="Course"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.Course || ''}
+                                                error={touched.Course && errors.Course ? {
+                                                    content: errors.Course,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
+                                        <Form.Field>
+                                            <label>Количество студентов</label>
+                                            <Input
+                                                id="CountStudent"
+                                                name="CountStudent"
+                                                type="CountStudent"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.CountStudent || ''}
+                                                error={touched.CountStudent && errors.CountStudent ? {
+                                                    content: errors.CountStudent,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
+                                        <Form.Field>
+                                            <label>Количество подгрупп</label>
+                                            <Input
+                                                id="CountSubgrroup"
+                                                name="CountSubgrroup"
+                                                type="CountSubgrroup"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.CountSubgrroup || ''}
+                                                error={touched.CountSubgrroup && errors.CountSubgrroup ? {
+                                                    content: errors.CountSubgrroup,
+                                                    pointing: 'below',
+                                                } : false}
+                                            />
+                                        </Form.Field>
+                                    </Form>
+                                </Modal.Description>
+                            </Modal.Content>
+                            <Modal.Actions>
+                                <Button color='black' onClick={() => setOpen(false)}>
+                                    Отмена
                     </Button>
-                    <Button
-                        content="Изменить"
-                        labelPosition='right'
-                        icon='checkmark'
-                        onClick={() => clickOk()}
-                        positive
-                    />
-                </Modal.Actions>
+                                <Button
+                                    content="Изменить"
+                                    labelPosition='right'
+                                    icon='checkmark'
+                                    onClick={() => clickOk(values)}
+                                    positive
+                                    disabled={!isValid}
+                                />
+                            </Modal.Actions>
+                        </>)
+                    }}
+                </Formik>
             </Modal>
         </>
     )

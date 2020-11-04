@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Table } from "../../common/Table/Table";
 import { db } from "../../api/firebase"
 import { Button, Modal, Segment, Form, Input } from "semantic-ui-react";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 export function Qualification(props) {
     const [data, setdata] = useState([])
@@ -15,9 +17,9 @@ export function Qualification(props) {
                     setdata([])
                 }
                 console.log("Speciality -> querySnapshot", querySnapshot)
-                const dataSnapshot=[]
-                querySnapshot.forEach((d)=>{
-                    dataSnapshot.push({...d.data(), id: d.id})
+                const dataSnapshot = []
+                querySnapshot.forEach((d) => {
+                    dataSnapshot.push({ ...d.data(), id: d.id })
                 })
                 setdata(dataSnapshot)
                 console.log("Speciality -> dataSnapshot", dataSnapshot)
@@ -32,12 +34,12 @@ export function Qualification(props) {
     }, [])
 
     const handleClickDelete = (row) => {
-        db.collection('qualification').doc(row.original.id).delete().then(function() {
+        db.collection('qualification').doc(row.original.id).delete().then(function () {
             console.log("Document successfully deleted!");
             loadData()
-        }).catch(function(error) {
+        }).catch(function (error) {
             console.error("Error removing document: ", error);
-        });        
+        });
     }
 
     const handleClickEdit = (row) => {
@@ -70,35 +72,25 @@ export function Qualification(props) {
         }
     ]
 
-    const onChangeModalForm = (property, value) => {
-        console.log("onChangeModalForm -> property, value", property, value)
-        const newState = { ...modalValues }
-        property.forEach((i, num) => {
-            newState[i] = value[num]
-        })
-        setModalValues(newState)
-        console.log("onChangeModalForm -> newState", newState)
-    }
-
-    const clickOk = () => {
+    const clickOk = (values) => {
         if (modalValues.id) {
             db.collection('qualification').doc(modalValues.id).set({
-                NameQualification: modalValues.NameQualification
-        }).then(function() {
-            console.log("Document successfully written!");
-            setOpen(false)
-            loadData()
-        });
+                NameQualification: values.NameQualification
+            }).then(function () {
+                console.log("Document successfully written!");
+                setOpen(false)
+                loadData()
+            });
         } else {
             db.collection('qualification').doc().set({
-                NameQualification: modalValues.NameQualification
-            }).then(function() {
+                NameQualification: values.NameQualification
+            }).then(function () {
                 console.log("Document successfully written!");
                 setOpen(false)
                 loadData()
             });
         }
-        
+
     }
 
     return (
@@ -112,10 +104,47 @@ export function Qualification(props) {
                 onOpen={() => setOpen(true)}
                 open={open}
             >
+                <Formik
+                    initialErrors={{ NameQualification: "" }}
+                    initialValues={{
+                        NameQualification: modalValues.NameQualification || '',
+                    }}
+                    onSubmit={(values) => {
+                        console.log(values)
+                    }}
+                    validationSchema={Yup.object({
+                        NameQualification: Yup.string().required('Обязательно для заполнения!'),
+                    })}
+                >
+                    {({
+                        values,
+                        errors,
+                        touched,
+                        handleChange,
+                        handleBlur,
+                        handleSubmit,
+                        isValid,
+                        /* and other goodies */
+                    }) => (
+                            <>
                 <Modal.Content>
                     <Modal.Description>
                         <Form>
-                            <Form.Field><label>Направление</label><Input onChange={(e, data) => { onChangeModalForm(['NameQualification'], [data.value]) }} value={modalValues.NameQualification||''} /></Form.Field>
+                            <Form.Field>
+                                <label>Направление</label>
+                                <Input
+                                    id="NameQualification"
+                                    name="NameQualification"
+                                    type="NameQualification"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value={values.NameQualification}
+                                    error={touched.NameQualification && errors.NameQualification ? {
+                                        content: errors.NameQualification,
+                                        pointing: 'below',
+                                    } : false}
+                                />
+                            </Form.Field>
                         </Form>
                     </Modal.Description>
                 </Modal.Content>
@@ -127,10 +156,14 @@ export function Qualification(props) {
                         content="Изменить"
                         labelPosition='right'
                         icon='checkmark'
-                        onClick={() => clickOk()}
+                        onClick={() => clickOk(values)}
                         positive
+                        disabled={!isValid}
                     />
                 </Modal.Actions>
+                </>
+                    )}
+                    </Formik>
             </Modal>
         </>
     )

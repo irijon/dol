@@ -174,7 +174,7 @@ export function Table({ columns, data }) {
     <>
       <Styles>
         <div className={"tableWrap"}>
-          <SemTable {...getTableProps()}>
+          <SemTable style={{width:'auto'}} {...getTableProps()}>
             <SemTable.Header>
               {headerGroups.map(headerGroup => (
                 <SemTable.Row {...headerGroup.getHeaderGroupProps()}>
