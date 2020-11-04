@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, forwardRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { useTable, useSortBy, useFilters, usePagination, useRowSelect, useBlockLayout, useResizeColumns } from 'react-table'
-import { Table as SemTable, Label } from 'semantic-ui-react'
+import { Table as SemTable } from 'semantic-ui-react'
 
 const Styles = styled.div`
   padding: 1rem;
@@ -86,7 +86,6 @@ const Styles = styled.div`
 function DefaultColumnFilter({
   column: { filterValue, preFilteredRows, setFilter },
 }) {
-  const count = preFilteredRows.length
 
   return (
     <input
@@ -100,7 +99,7 @@ function DefaultColumnFilter({
   )
 }
 
-const IndeterminateButton = forwardRef(
+/*const IndeterminateButton = forwardRef(
   ({ indeterminate, ...rest }, ref) => {
     const defaultRef = useRef()
     const resolvedRef = ref || defaultRef
@@ -115,7 +114,7 @@ const IndeterminateButton = forwardRef(
       </>
     )
   }
-)
+)*/
 
 export function Table({ columns, data }) {
   const defaultColumn = React.useMemo(
@@ -129,8 +128,6 @@ export function Table({ columns, data }) {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
-    allColumns,
     prepareRow,
     page,
     canPreviousPage,
@@ -141,8 +138,7 @@ export function Table({ columns, data }) {
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, filters },
-    resetResizing,
+    state: { pageIndex, pageSize },
   } = useTable({
     columns,
     data,
@@ -174,7 +170,7 @@ export function Table({ columns, data }) {
     <>
       <Styles>
         <div className={"tableWrap"}>
-          <SemTable style={{width:'auto'}} {...getTableProps()}>
+          <SemTable style={{ width: 'auto' }} {...getTableProps()}>
             <SemTable.Header>
               {headerGroups.map(headerGroup => (
                 <SemTable.Row {...headerGroup.getHeaderGroupProps()}>
@@ -208,7 +204,7 @@ export function Table({ columns, data }) {
                 prepareRow(row)
                 return (
                   <SemTable.Row {...row.getRowProps()}>
-                    {row.cells.map((cell,i) => {
+                    {row.cells.map((cell, i) => {
                       return <SemTable.Cell textAlign={'center'} key={i.toString()} {...{ style: { ...cell.getCellProps().style } }}>{cell.render('Cell')}</SemTable.Cell>
                     })}
                   </SemTable.Row>

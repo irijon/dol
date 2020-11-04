@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Input, Segment, Button, Form, Label } from 'semantic-ui-react';
+import { Input, Segment, Button, Form } from 'semantic-ui-react';
 import { Auth } from '../../api/firebase'
 import { withRouter } from "react-router";
 import { useFormik } from 'formik';
