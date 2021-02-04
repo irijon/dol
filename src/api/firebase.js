@@ -6,14 +6,13 @@ import "firebase/auth";
 import "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDH_OA4ccgpK4zfi6dLyyztwV0hQpjxA_o",
-  authDomain: "dolj-lab.firebaseapp.com",
-  databaseURL: "https://dolj-lab.firebaseio.com",
-  projectId: "dolj-lab",
-  storageBucket: "dolj-lab.appspot.com",
-  messagingSenderId: "244965531919",
-  appId: "1:244965531919:web:1714fd5b7556b0c9995e7a",
-  measurementId: "G-ZT4C4BH8Z4",
+  apiKey: "AIzaSyAZoYoOOsXMygmY78pQSv_NHhOy6v3qQTQ",
+  authDomain: "plugin-ef7c3.firebaseapp.com",
+  databaseURL: "https://plugin-ef7c3.firebaseio.com",
+  projectId: "plugin-ef7c3",
+  storageBucket: "plugin-ef7c3.appspot.com",
+  messagingSenderId: "185585367733",
+  appId: "1:185585367733:web:ecc0501cd0dd1844fadcfc"
 };
 
 firebase.initializeApp(firebaseConfig);

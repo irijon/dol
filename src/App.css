@@ -80,17 +80,3 @@ select {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-.animate{
-    animation-name: example;
-    animation-duration: .35s;
-}
-
-@keyframes example {
-    0%   { transform: translateX(100%); -webkit-transform: translateX(100%); -moz-transform: translateX(100%); -ms-transform: translateX(100%); -o-transform: translateX(100%); }
-    25%  { transform: translateX(75%); -webkit-transform: translateX(75%); -moz-transform: translateX(75%); -ms-transform: translateX(75%); -o-transform: translateX(75%); }
-    50%  { transform: translateX(50%); -webkit-transform: translateX(50%); -moz-transform: translateX(50%); -ms-transform: translateX(50%); -o-transform: translateX(50%); }
-    75%  { transform: translateX(25%); -webkit-transform: translateX(25%); -moz-transform: translateX(25%); -ms-transform: translateX(25%); -o-transform: translateX(25%); }
-    100% { transform: translateX(0%); -webkit-transform: translateX(0%); -moz-transform: translateX(0%); -ms-transform: translateX(0%); -o-transform: translateX(0%); }
-}

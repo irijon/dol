@@ -87,22 +87,22 @@ function App() {
 
         <Switch>
           <Route path="/speciality">
-            <div key={"1"} className="animate">
+            <div key={"1"}>
               <Speciality />
             </div>
           </Route>
           <Route path="/qualification">
-            <div key={"2"} className="animate">
+            <div key={"2"}>
               <Qualification />
             </div>
           </Route>
           <Route path="/formEducation">
-            <div key={"3"} className="animate">
+            <div key={"3"}>
               <FormEducation />
             </div>
           </Route>
           <Route path="/groups">
-            <div key={"4"} className="animate">
+            <div key={"4"}>
               <Group />
             </div>
           </Route>
@@ -114,7 +114,6 @@ function App() {
                 justifyContent: "center",
               }}
               key={"5"}
-              className="animate"
             >
               <AuthForm></AuthForm>
             </div>
